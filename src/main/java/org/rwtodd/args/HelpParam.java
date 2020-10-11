@@ -6,7 +6,7 @@ package org.rwtodd.args;
  */
 public class HelpParam extends Param<Void> {
     public HelpParam(String longname, char shortname, String help) {
-        super(longname, shortname, help);
+        super(longname, shortname, null, help);
     }
     
     public HelpParam() {

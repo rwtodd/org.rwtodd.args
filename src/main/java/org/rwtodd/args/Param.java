@@ -11,18 +11,20 @@ import java.io.PrintStream;
 public abstract class Param<T> {
     private final String longName;
     private final char shortName;
+    private final String argName;
     private final String helpStr;
     protected T arg;
     
-    public Param(String longname, char shortname, String help, T deflt) {
+    public Param(String longname, char shortname, String argname, String help, T deflt) {
         arg = deflt;
+        argName = (argname!=null)?argname:"arg";
         helpStr = help;
         longName = longname;
         shortName = shortname;
     }
     
-    public Param(String longname, char shortname, String help) {
-        this(longname, shortname, help, null);
+    public Param(String longname, char shortname, String argname, String help) {
+        this(longname, shortname, argname, help, null);
     }
     
     /** get the long name for the parameter.
@@ -70,6 +72,10 @@ public abstract class Param<T> {
      * @param ps the stream to use
      */
     public void addHelp(PrintStream ps) {
-        ps.format("%s\t%s", longName, helpStr);
+        ps.format("--%s%s%s\n    %s\n",
+                longName,
+                (shortName!=' ')?String.format("|-%c",shortName):"",
+                needsArg()?String.format("  <%s>",argName):"",
+                helpStr);
     }
 }

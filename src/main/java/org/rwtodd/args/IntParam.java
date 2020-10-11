@@ -6,12 +6,12 @@ package org.rwtodd.args;
  */
 public class IntParam extends Param<Integer> {
 
-    public IntParam(String longname, char shortname, String help, Integer deflt) {
-        super(longname, shortname, help, deflt);
+    public IntParam(String longname, char shortname, String argname, String help, Integer deflt) {
+        super(longname, shortname, argname, help, deflt);
     }
     
-    public IntParam(String longname, char shortname, String help) {
-        this(longname, shortname, help, Integer.MIN_VALUE);
+    public IntParam(String longname, char shortname, String argname, String help) {
+        this(longname, shortname, argname, help, Integer.MIN_VALUE);
     }
     
     @Override

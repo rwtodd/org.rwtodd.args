@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -92,8 +93,10 @@ public class Parser {
      *
      * @param args the command-line arguments
      * @return any non-param strings from the input
+     * @throws org.rwtodd.args.CommandLineException when a problem is
+     * encountered, or help is requested
      */
-    public List<String> parse(String... args) throws IllegalArgumentException {
+    public List<String> parse(String... args) throws CommandLineException {
         var dashdash = Arrays.asList(args).indexOf("--");
         if (dashdash < 0) {
             dashdash = args.length;
@@ -106,7 +109,7 @@ public class Parser {
         while (expandedArgs.hasNext()) {
             var arg = expandedArgs.next();
             if (arg instanceof IllegalArgumentException) {
-                throw (IllegalArgumentException) arg;
+                throw new CommandLineException(this, false, ((IllegalArgumentException) arg).getMessage());
             } else if (arg instanceof Param<?>) {
                 final var param = (Param<?>) arg;
                 try {
@@ -114,20 +117,17 @@ public class Parser {
                         param.acceptArg(null);
                     } else {
                         if (!expandedArgs.hasNext()) {
-                            throw new IllegalArgumentException("No argument given for the <" + param.getName() + "> option!");
+                            throw new CommandLineException(this, false, "No argument given for the <" + param.getName() + "> option!");
                         }
                         final var value = expandedArgs.next();
                         if (value instanceof String) {
                             param.acceptArg((String) value);
                         } else {
-                            throw new IllegalArgumentException("No argument given for the <" + param.getName() + "> option!");
+                            throw new CommandLineException(this, false, "No argument given for the <" + param.getName() + "> option!");
                         }
                     }
                 } catch (IllegalArgumentException iae) {
-                    if (param.isHelp()) {
-                        helpCalled = true;
-                    }
-                    throw iae;
+                    throw new CommandLineException(this, param.isHelp(), iae.getMessage());
                 }
             } else if (arg instanceof String) {
                 remainingArgs.add((String) arg);
@@ -140,5 +140,25 @@ public class Parser {
             Arrays.stream(args, dashdash + 1, args.length).forEachOrdered(remainingArgs::add);
         }
         return remainingArgs;
+    }
+
+    /**
+     * Throws an exception which requests the help text be printed.
+     *
+     * @throws CommandLineException
+     */
+    public void requestHelp() throws CommandLineException {
+        throw new CommandLineException(this, true, "Help Requested");
+    }
+
+    /**
+     * Returns a list of all params, sorted by long name.
+     *
+     * @return the list of params.
+     */
+    List<Param<?>> allParams() {
+        return params.values().stream()
+                .sorted((a, b) -> a.getName().compareTo(b.getName()))
+                .collect(Collectors.toList());
     }
 }

@@ -8,7 +8,7 @@ package org.rwtodd.args;
 public class AccumulatingParam extends Param<Integer> {
 
     public AccumulatingParam(String longname, char shortname, String help) {
-        super(longname, shortname, help, 0);
+        super(longname, shortname, null, help, 0);
     }
 
     @Override

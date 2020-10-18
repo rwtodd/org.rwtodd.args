@@ -73,7 +73,8 @@ public class Parser {
                 if (p != null) {
                     plist.add(p);
                     if (p.needsArg()) {
-                        plist.add(arg.substring(idx + 1));
+                        if(arg.length() > (idx+1))
+                            plist.add(arg.substring(idx + 1));
                         break;
                     }
                 } else {

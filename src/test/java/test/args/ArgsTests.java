@@ -56,7 +56,7 @@ class ArgsTests {
             assertEquals(0, extras.size());
             assertEquals("wally", sp.getValue());
 
-            extras = p.parse("--name=","file");
+            extras = p.parse("--name=", "file");
             assertEquals(1, extras.size());
             assertEquals("", sp.getValue());
 
@@ -91,6 +91,39 @@ class ArgsTests {
                     """,
                     backing.toString(java.nio.charset.StandardCharsets.UTF_8));
         }
+    }
+
+    @Test
+    void testShortExpansion() {
+        // make sure that an argument to -o here shows up as missing
+        try {
+            final var p = new Parser(
+                    new IntParam("orders", 'o', "count", "How many orders to send.", 5),
+                    new HelpParam());
+            var extras = p.parse("-o");
+            fail("Exception not thrown!");
+        } catch (CommandLineException cle) {
+            /* nothing */
+        }
+        
+        // make sure we can get the argument when appended to the param, and when not
+        try {
+            final var ip = new IntParam("orders", 'o', "count", "How many orders to send.", 5); 
+            final var p = new Parser(
+                    ip,
+                    new HelpParam());
+            var extras = p.parse("-o2");
+            assertEquals(2, ip.getValue());
+            
+            extras = p.parse("-o323");
+            assertEquals(323, ip.getValue());
+
+            extras = p.parse("-o","512");
+            assertEquals(512, ip.getValue());            
+        } catch (CommandLineException cle) {
+            fail("Exception thrown!", cle);
+        }
+        
     }
 
 }

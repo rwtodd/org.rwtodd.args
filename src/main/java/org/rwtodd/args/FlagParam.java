@@ -9,7 +9,7 @@ package org.rwtodd.args;
 public class FlagParam extends Param<Boolean> {
 
     public FlagParam(String longname, char shortname, String help) {
-        super(longname, shortname, null, help);
+        super(longname, shortname, null, help, Boolean.FALSE);
     }
 
     @Override

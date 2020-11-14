@@ -126,4 +126,22 @@ class ArgsTests {
         
     }
 
+    @Test
+    void testFlagArgs() {
+        // make sure we can get the argument when appended to the param, and when not
+        try {
+            final var fp = new FlagParam("orders", 'o', "Send orders"); 
+            final var p = new Parser(
+                    fp,
+                    new HelpParam());
+            var extras = p.parse("hi");
+            assertFalse(fp.getValue());
+            
+            extras = p.parse("hi", "--orders");
+            assertTrue(fp.getValue());
+        } catch (CommandLineException cle) {
+            fail("Exception thrown!", cle);
+        }
+        
+    }
 }

@@ -127,6 +127,16 @@ public class Parser {
                             throw new CommandLineException(this, false, "No argument given for the <" + param.getName() + "> option!");
                         }
                     }
+                    
+                    // now validate the argument, if needed
+                    if(!param.isValidValue()) {
+                        throw new CommandLineException(
+                                this,
+                                false,
+                                String.format("Param %s's value (%s) is not valid!",
+                                        param.getName(),
+                                        param.getValue().toString()));
+                    }
                 } catch (IllegalArgumentException iae) {
                     throw new CommandLineException(this, param.isHelp(), iae.getMessage());
                 }

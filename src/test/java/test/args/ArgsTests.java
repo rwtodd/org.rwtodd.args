@@ -105,43 +105,63 @@ class ArgsTests {
         } catch (CommandLineException cle) {
             /* nothing */
         }
-        
+
         // make sure we can get the argument when appended to the param, and when not
         try {
-            final var ip = new IntParam("orders", 'o', "count", "How many orders to send.", 5); 
+            final var ip = new IntParam("orders", 'o', "count", "How many orders to send.", 5);
             final var p = new Parser(
                     ip,
                     new HelpParam());
             var extras = p.parse("-o2");
             assertEquals(2, ip.getValue());
-            
+
             extras = p.parse("-o323");
             assertEquals(323, ip.getValue());
 
-            extras = p.parse("-o","512");
-            assertEquals(512, ip.getValue());            
+            extras = p.parse("-o", "512");
+            assertEquals(512, ip.getValue());
         } catch (CommandLineException cle) {
             fail("Exception thrown!", cle);
         }
-        
+
     }
 
     @Test
     void testFlagArgs() {
         // make sure we can get the argument when appended to the param, and when not
         try {
-            final var fp = new FlagParam("orders", 'o', "Send orders"); 
+            final var fp = new FlagParam("orders", 'o', "Send orders");
             final var p = new Parser(
                     fp,
                     new HelpParam());
             var extras = p.parse("hi");
             assertFalse(fp.getValue());
-            
+
             extras = p.parse("hi", "--orders");
             assertTrue(fp.getValue());
         } catch (CommandLineException cle) {
             fail("Exception thrown!", cle);
         }
-        
+
+    }
+
+    @Test
+    void testValidation() {
+        try {
+            final var ip = new IntParam("orders", 'o', "count", "How many orders to send.", 5) {
+                protected boolean isValidValue() {
+                    return (arg < 10);
+                }
+            };
+            final var p = new Parser(
+                    ip,
+                    new HelpParam());
+            var extras = p.parse("-o8");
+            assertEquals(8, ip.getValue());
+            extras = p.parse("-o20");
+            fail("Exception wasn't thrown!");
+        } catch (CommandLineException cle) {
+            assertFalse(cle.helpWasRequested());
+        }
     }
 }

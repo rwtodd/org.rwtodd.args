@@ -46,7 +46,8 @@ public abstract class Param<T> {
     protected boolean needsArg() { return true; }
     
     /** take the given string, (null if needsArgs() is false), and
-     *  perform the appropriate action for this parameter type.
+     *  perform the appropriate action for this parameter type.  If accepted,
+     * the value should be stored in protected field {@code arg}.
      * 
      * @param value The given parameter argument.
      * @throws IllegalArgumentException when the value is not well-formed for this
@@ -54,6 +55,16 @@ public abstract class Param<T> {
      */
     protected abstract void acceptArg(String value)
             throws IllegalArgumentException;
+    
+    /**
+     * Do any needed checks on the value ingested by acceptArg() (stored in field {@code arg}).
+     * Subclasses can override this method to validate arguments.  None of the
+     * Param subclasses defined in this package have code in this method, so classes are 
+     * free to override it without calling super() or worrying about breaking anything.
+     * 
+     * @return true if the value is OK, false otherwise.
+     */
+    protected boolean isValidValue() { return true; }
     
     /** Retrieves the value out of this parameter.
      * 

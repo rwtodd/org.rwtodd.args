@@ -2,26 +2,28 @@ package org.rwtodd.args;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
 
 /**
  * A param that takes expects an existing file on the filesystem
  * @author rwtodd
  */
-public class ExistingFileParam extends Param<Path> {
+public class ExistingFileParam extends BasicOneArgParam<Path> {
 
-    public ExistingFileParam(String longname, char shortname, String argname, String desc, Path deflt) {
-        super(longname, shortname, argname, desc, deflt);
+    public ExistingFileParam(Collection<String> names, Path dflt, String help) {
+        super(names, dflt, help);
     }
     
-    public ExistingFileParam(String longname, char shortname, String argname, String desc) {
-        this(longname,shortname,argname,desc,null);
+    public ExistingFileParam(Collection<String> names, String help) {
+        this(names, null, help);
     }
     
     @Override
-    protected void acceptArg(String value) throws IllegalArgumentException {
-        this.arg = Path.of(value);
-        if(Files.notExists(this.arg))
-            throw new IllegalArgumentException("Not an exisiting file: " +value);
+    protected Path convertArg(String param, String argument) throws ArgParserException {
+        Path p = Path.of(argument);
+        if(Files.notExists(p))
+            throw new ArgParserException(String.format("Argument for <%s> is not an exisiting file!",param));
+        return p;
     }
     
 }

@@ -1,28 +1,30 @@
 package org.rwtodd.args;
 
+import java.util.Collection;
+
 /**
- * IntParam is a Param<T> that accepts integer arguments.
+ * IntParam is a Param that accepts integer arguments.
  * @author rwtodd
  */
-public class IntParam extends Param<Integer> {
+public class IntParam extends BasicOneArgParam<Integer> {
 
-    public IntParam(String longname, char shortname, String argname, String help, Integer deflt) {
-        super(longname, shortname, argname, help, deflt);
-    }
+  public IntParam(Collection<String> names, Integer dflt, String help) {
+    super(names, dflt, help);
+  }
     
-    public IntParam(String longname, char shortname, String argname, String help) {
-        this(longname, shortname, argname, help, Integer.MIN_VALUE);
+  public IntParam(Collection<String> names, String help) {
+    super(names, Integer.MIN_VALUE, help);
+  }
+
+  @Override
+  protected Integer convertArg(String param, String arg) throws ArgParserException {
+    try {
+      return Integer.valueOf(arg);
+    } catch(NumberFormatException nfe) {
+      throw new ArgParserException(
+                  String.format("Argument for <%s> is not an integer!", param),
+                  nfe);
     }
-    
-    @Override
-    protected void acceptArg(String value) throws IllegalArgumentException {
-        try {
-            this.arg = Integer.valueOf(value);            
-        } catch(NumberFormatException nfe) {
-            throw new IllegalArgumentException(
-                    String.format("<%s> is not an integer!", value),
-                    nfe);
-        }
-    }
+  }
 
 }

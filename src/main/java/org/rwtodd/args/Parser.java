@@ -5,8 +5,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Iterator;
 
 /**
  * Parses command-line arguments against given Param<T>'s.
@@ -14,78 +13,58 @@ import java.util.stream.Stream;
  * @author rwtodd
  */
 public class Parser {
+    /* a helper class to iterate through the arguments and track our
+      verbatim status */
+    private static final class ArgumentIterator {
+       private boolean verbatim;
+       private final String[] argList;
+       private int argIdx; // index into argList
 
-    private final Map<String, Param<?>> params;
-    private final Map<Character, Param<?>> shortParams;
-    private boolean helpCalled;
+       ArgumentIterator(String[] args) {
+          argList = args;
+          argIdx = -1;
+          verbatim = false;
+       } 
 
-    public Parser(Param<?>... ps) {
-        helpCalled = false;
-        params = new HashMap<>();
-        shortParams = new HashMap<>();
-        for (var p : ps) {
-            params.put(p.getName(), p);
-            if (p.getShortName() != ' ') {
-                shortParams.put(p.getShortName(), p);
-            }
-        }
+       boolean isVerbatim() { return verbatim; }
+       boolean advance() {
+         if(++argIdx < argList.length) {
+           if(!verbatim && argList[argIdx].equals("--")) {
+             verbatim = true;
+             return advance();
+           } else {
+             return true;
+           }
+         } else {
+           // no more input!
+           return false;
+         } 
+       }
+
+       // beware! no checking for -1 here... it's an internal class so hardly necessary. just use it correctly!
+       String getCurrent() { return argList[argIdx]; }
+
+       boolean isNotDashed() {
+         final String current = argList[argIdx];
+         return verbatim || !current.startsWith("-") || current.length() == 1;
+       }
+
+       boolean isDoubleDash() {
+         final String current = argList[argIdx];
+         return !verbatim && current.startsWith("--");
+       }
+
+       boolean isSingleDash() {
+         final String current = argList[argIdx];
+         return !verbatim && current.startsWith("-");
+       }
     }
 
-    /**
-     * convert a string into one or more String|Exception|Param<?>'s. Since java
-     * doesn't do union types without a lot of boilerplate, settle for Object in
-     * this internal method.
-     *
-     * @param arg a command-line argument.
-     * @return A stream of items which can be strings or Param<?>'s.
-     */
-    private Stream<Object> expandArg(String arg) {
-        if (arg.startsWith("--")) {
-            final var eqidx = arg.indexOf('=');
-            if (eqidx == -1) {
-                // we have a simple --long-argument
-                final var found = params.get(arg.substring(2));
-                if (found != null) {
-                    return Stream.of(found);
-                } else {
-                    return Stream.of(new IllegalArgumentException(
-                            "Unknown parameter: " + arg
-                    ));
-                }
-            } else {
-                // we have a --param=value type of argument
-                final var val = arg.substring(eqidx + 1);
-                final var found = params.get(arg.substring(2, eqidx));
-                if (found != null) {
-                    return Stream.of(found, val);
-                } else {
-                    return Stream.of(new IllegalArgumentException(
-                            "Unknown parameter: " + arg.substring(0, eqidx)
-                    ));
-                }
-            }
-        } else if (arg.startsWith("-") && (arg.length() > 1)) {
-            // we have a short switch, possibly bunched together or grouped
-            // with an argument -tvfname == -t -v -f name
-            final var plist = new ArrayList<Object>();
-            for (int idx = 1; idx < arg.length(); idx++) {
-                final var p = shortParams.get(arg.charAt(idx));
-                if (p != null) {
-                    plist.add(p);
-                    if (p.needsArg()) {
-                        if(arg.length() > (idx+1))
-                            plist.add(arg.substring(idx + 1));
-                        break;
-                    }
-                } else {
-                    plist.add(new IllegalArgumentException("Unknown short arg -" + arg.charAt(idx)));
-                    break;
-                }
-            }
-            return plist.stream();
-        } else {
-            return Stream.of(arg);
-        }
+    private final Map<String, Param> parameterMap;
+
+    public Parser(Param... ps) {
+        parameterMap = new HashMap<>();
+        for (var p : ps) {  p.addToMap(parameterMap); }
     }
 
     /**
@@ -94,82 +73,74 @@ public class Parser {
      *
      * @param args the command-line arguments
      * @return any non-param strings from the input
-     * @throws org.rwtodd.args.CommandLineException when a problem is
-     * encountered, or help is requested
+     * @throws org.rwtodd.args.ArgParserException when a problem is
+     *    encountered
      */
-    public List<String> parse(String... args) throws CommandLineException {
-        var dashdash = Arrays.asList(args).indexOf("--");
-        if (dashdash < 0) {
-            dashdash = args.length;
-        }
-
-        var expandedArgs = Arrays.stream(args, 0, dashdash)
-                .flatMap(this::expandArg).iterator();
+    public List<String> parse(String... args) throws ArgParserException {
+        var iter = new ArgumentIterator(args);
         var remainingArgs = new ArrayList<String>();
-
-        while (expandedArgs.hasNext()) {
-            var arg = expandedArgs.next();
-            if (arg instanceof IllegalArgumentException) {
-                throw new CommandLineException(this, false, ((IllegalArgumentException) arg).getMessage());
-            } else if (arg instanceof Param<?>) {
-                final var param = (Param<?>) arg;
-                try {
-                    if (!param.needsArg()) {
-                        param.acceptArg(null);
-                    } else {
-                        if (!expandedArgs.hasNext()) {
-                            throw new CommandLineException(this, false, "No argument given for the <" + param.getName() + "> option!");
-                        }
-                        final var value = expandedArgs.next();
-                        if (value instanceof String) {
-                            param.acceptArg((String) value);
-                        } else {
-                            throw new CommandLineException(this, false, "No argument given for the <" + param.getName() + "> option!");
-                        }
-                    }
-                    
-                    // now validate the argument, if needed
-                    if(!param.isValidValue()) {
-                        throw new CommandLineException(
-                                this,
-                                false,
-                                String.format("Param %s's value (%s) is not valid!",
-                                        param.getName(),
-                                        param.getValue().toString()));
-                    }
-                } catch (IllegalArgumentException iae) {
-                    throw new CommandLineException(this, param.isHelp(), iae.getMessage());
-                }
-            } else if (arg instanceof String) {
-                remainingArgs.add((String) arg);
+          
+        while (iter.advance()) {
+          if(iter.isDoubleDash()) {
+            final String param = iter.getCurrent().substring(2);
+            final int eqIdx = param.indexOf("=");
+            if(eqIdx >= 0) {
+              runParamWithArg(param.substring(0,eqIdx), param.substring(eqIdx+1));
             } else {
-                throw new RuntimeException("Somehow an argument was neither a param nor a string!");
+              runParam(param, iter);
             }
-        }
-
-        if (dashdash < (args.length - 1)) {
-            Arrays.stream(args, dashdash + 1, args.length).forEachOrdered(remainingArgs::add);
+          } else if(iter.isSingleDash()) {
+            // there can be multiple params run together (e.g. -cvf), so
+            // run all the params, forcing no arguments on all except the last one
+            final String params = iter.getCurrent().substring(1);
+            for(int i = 0; i < params.length() - 1; ++i) {
+              runParamWithoutArg(params.substring(i,i+1));
+            }
+            runParam(params.substring(params.length() - 1), iter);
+          } else {
+            remainingArgs.add(iter.getCurrent());
+          }
         }
         return remainingArgs;
     }
 
-    /**
-     * Throws an exception which requests the help text be printed.
-     *
-     * @throws CommandLineException
-     */
-    public void requestHelp() throws CommandLineException {
-        throw new CommandLineException(this, true, "Help Requested");
+    private void runParamWithArg(String param, String arg) throws ArgParserException {
+      Param p = parameterMap.get(param);
+      if(p instanceof OneArgParam oap) {
+        oap.process(param,arg);
+      } else if(p instanceof NoArgParam nap) {
+        throw new ArgParserException(String.format("Parameter <%s> does not take arguments!",
+                                                   param));
+      } else {
+        throw new ArgParserException(String.format("Parameter <%s> not found!", param));
+      }
     }
 
-    /**
-     * Returns a list of all params, sorted by long name.
-     *
-     * @return the list of params.
-     */
-    List<Param<?>> allParams() {
-        return params.values().stream()
-                .sorted((a, b) -> a.getName().compareTo(b.getName()))
-                .collect(Collectors.toList());
+    private void runParamWithoutArg(String param) throws ArgParserException {
+      Param p = parameterMap.get(param);
+      if(p instanceof NoArgParam nap) {
+        nap.process(param);
+      } else if(p instanceof OneArgParam nap) {
+        throw new ArgParserException(String.format("Parameter <%s> needs an argument!",
+                                                   param));
+      } else {
+        throw new ArgParserException(String.format("Parameter <%s> not found!", param));
+      }
+    }
+
+    private void runParam(String param, ArgumentIterator iter) throws ArgParserException {
+      Param p = parameterMap.get(param);
+      if(p instanceof OneArgParam oap) {
+        if(iter.advance() && iter.isNotDashed()) {
+          oap.process(param, iter.getCurrent());        
+        } else {
+          throw new ArgParserException(String.format("Parameter <%s> was not given an argument!",
+                                                     param));
+        }
+      } else if(p instanceof NoArgParam nap) {
+        nap.process(param);
+      } else {
+        throw new ArgParserException(String.format("Parameter <%s> not found!", param));
+      }
     }
 }

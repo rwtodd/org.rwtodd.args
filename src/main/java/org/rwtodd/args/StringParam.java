@@ -1,27 +1,22 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.rwtodd.args;
+
+import java.util.Collection;
 
 /**
  *
  * @author rwtodd
  */
-public class StringParam extends Param<String> {
-
-    public StringParam(String longname, char shortname, String argname, String help, String deflt) {
-        super(longname, shortname, argname, help, deflt);
-    }
+public class StringParam extends BasicOneArgParam<String> {
+  public StringParam(Collection<String> names, String dflt, String help) {
+    super(names, dflt, help);
+  }
     
-    public StringParam(String longname, char shortname, String argname, String help) {
-        this(longname, shortname, argname, help, "");
-    }
+  public StringParam(Collection<String> names, String help) {
+    super(names, null, help);
+  }
 
-    @Override
-    protected void acceptArg(String value) throws IllegalArgumentException {
-        this.arg = value;
-    }
-    
+  @Override
+  protected String convertArg(String param, String argument) throws Exception {
+    return argument;
+  }
 }

@@ -6,10 +6,10 @@ class BasicTests extends Specification {
 
   def "test accumulator"() {
     given:
-      final var verbose = new AccumulatingParam("verbose", 'v' as char, "Be more verbose (can repeat this arg)")
-      final var p = new Parser(verbose, new HelpParam())
+      final var verbose = new AccumulatingParam(['verbose', 'v'], "Be more verbose (can repeat this arg)")
+      final var p = new Parser(verbose)
     when:
-      var extras = p.parse("-vvvv", "-v")
+      var extras = p.parse('-vvvv', '-v')
     then:
       extras.empty
       verbose.value == 5
@@ -17,7 +17,7 @@ class BasicTests extends Specification {
 
   def "test int param 1"() {
     given:
-      final var ip = new IntParam("count", ' ' as char, "n", "The count of things.");
+      final var ip = new IntParam(['count'], "<N> The count of things.");
       final var p = new Parser(ip);
     when:
       var extras = p.parse("file", "file");
@@ -28,7 +28,7 @@ class BasicTests extends Specification {
 
   def "test int param 2"() {
     given:
-      final var ip = new IntParam("count", ' ' as char, "n", "The count of things.");
+      final var ip = new IntParam(['count'], "<N> The count of things.");
       final var p = new Parser(ip);
     when:
       var extras = p.parse('--count=21');
@@ -39,7 +39,7 @@ class BasicTests extends Specification {
 
   def "test int param 3"() {
     given:
-      final var ip = new IntParam("count", ' ' as char, "n", "The count of things.");
+      final var ip = new IntParam(['count'], "<N> The count of things.");
       final var p = new Parser(ip);
     when:
       var extras = p.parse('--count', '486');
@@ -50,18 +50,18 @@ class BasicTests extends Specification {
 
   def "test string param 1"() {
     given:
-      final var sp = new StringParam("name", ' ' as char, "name", "The name you want.")
+      final var sp = new StringParam(['name'], "<NAME> The name you want.")
       final var p = new Parser(sp)
     when:
       var extras = p.parse('file', 'file')
     then:
       extras.size() == 2
-      sp.value == ""
+      sp.value == null
   }  
 
   def "test string param 2"() {
     given:
-      final var sp = new StringParam("name", ' ' as char, "name", "The name you want.")
+      final var sp = new StringParam(['name'], '<NAME> The name you want.')
       final var p = new Parser(sp)
     when:
       var extras = p.parse('--name=wally');
@@ -70,10 +70,9 @@ class BasicTests extends Specification {
       sp.value == 'wally'
   }  
 
-
   def "test string param 3"() {
     given:
-      final var sp = new StringParam("name", ' ' as char, "name", "The name you want.")
+      final var sp = new StringParam(['name'], "<NAME> The name you want.")
       final var p = new Parser(sp)
     when:
       var extras = p.parse('--name=', 'file');
@@ -84,7 +83,7 @@ class BasicTests extends Specification {
 
   def "test string param 4"() {
     given:
-      final var sp = new StringParam("name", ' ' as char, "name", "The name you want.")
+      final var sp = new StringParam(['name'], "<NAME> The name you want.")
       final var p = new Parser(sp)
     when:
       var extras = p.parse('--name', 'larry');
@@ -95,18 +94,16 @@ class BasicTests extends Specification {
 
   def "test short expansion missing arg"() {
     given:
-      final var p = new Parser(
-        new IntParam("orders", 'o' as char, "count", "how many?", 5),
-        new HelpParam())
+      final var p = new Parser(new IntParam(['orders','o'], 5, "<COUNT> how many?"))
     when:
       var extras = p.parse('-o')
     then:
-      CommandLineException e = thrown()
+      ArgParserException e = thrown()
   }
 
   def "test short expansion with argument"() {
     given:
-      final var ip = new IntParam("orders", 'o' as char, "count", "how many?", 5)
+      final var ip = new IntParam(['orders','o'], 5, "<COUNT> how many?")
       final var p = new Parser(ip)
     when:
       var extras = p.parse('-o', '2')
@@ -117,7 +114,7 @@ class BasicTests extends Specification {
 
   def "test flag not given"() {
     given:
-      final var fp = new FlagParam("orders", 'o' as char, "send orders?")
+      final var fp = new FlagParam(['orders','o'], "send orders?")
       final var p = new Parser(fp)
     when:
       var extras = p.parse('ho', 'ho')
@@ -128,7 +125,7 @@ class BasicTests extends Specification {
 
   def "test flag is given"() {
     given:
-      final var fp = new FlagParam("orders", 'o' as char, "send orders?")
+      final var fp = new FlagParam(['orders','o'], "send orders?")
       final var p = new Parser(fp)
     when:
       var extras = p.parse('-o', 'ho')
@@ -137,5 +134,93 @@ class BasicTests extends Specification {
       fp.value
   }
 
+  def "test splitting combined small flags"() {
+    given:
+      final var ord = new FlagParam(['orders','o'], "send orders?")
+      final var verbose = new AccumulatingParam(['verbose', 'v'], "Be more verbose (can repeat this arg)")
+      final var p = new Parser(ord,verbose)
+    when:
+      var extras = p.parse('-vovv', 'ho')
+    then:
+      extras.size() == 1
+      ord.value
+      verbose.value == 3 
+  }
+
+  def "test splitting combined small flags with arg"() {
+    given:
+      final var ord = new FlagParam(['orders','o'], "send orders?")
+      final var verbose = new AccumulatingParam(['verbose', 'v'], "Be more verbose (can repeat this arg)")
+      final var starg = new StringParam(['fname','f'], '<FNAME> the File name')
+      final var p = new Parser(ord,verbose,starg)
+    when:
+      var extras = p.parse('-vof', 'market.txt')
+    then:
+      extras.size() == 0
+      ord.value
+      verbose.value == 1 
+      starg.value == 'market.txt'
+  }
+
+  def "test small flags with missing arg"() {
+    given:
+      final var ord = new FlagParam(['orders','o'], "send orders?")
+      final var verbose = new AccumulatingParam(['verbose', 'v'], "Be more verbose (can repeat this arg)")
+      final var starg = new StringParam(['fname','f'], '<FNAME> the File name')
+      final var p = new Parser(ord,verbose,starg)
+    when:
+      var extras = p.parse('-vof')
+    then:
+      ArgParserException e = thrown()
+  }
+
+  def "test small flags with out-of-order arg"() {
+    given:
+      final var ord = new FlagParam(['orders','o'], "send orders?")
+      final var verbose = new AccumulatingParam(['verbose', 'v'], "Be more verbose (can repeat this arg)")
+      final var starg = new StringParam(['fname','f'], '<FNAME> the File name')
+      final var p = new Parser(ord,verbose,starg)
+    when:
+      var extras = p.parse('-vfo', 'market.txt')
+    then:
+      ArgParserException e = thrown()
+  }
+
+  def "test of -- verbatim args 1"() {
+    given:
+      final var ord = new FlagParam(['orders','o'], "send orders?")
+      final var p = new Parser(ord)
+    when:
+      var extras = p.parse('--', '-vof', '--', '--market.txt')
+    then:
+      !ord.value
+      extras == ['-vof', '--', '--market.txt']
+  }
+
+  def "test of -- verbatim args 2"() {
+    given:
+      final var ord = new FlagParam(['orders','o'], "send orders?")
+      final var verbose = new AccumulatingParam(['verbose', 'v'], "Be more verbose (can repeat this arg)")
+      final var starg = new StringParam(['fname','f'], '<FNAME> the File name')
+      final var p = new Parser(ord,verbose,starg)
+    when:
+      var extras = p.parse('-vof', '--', '--market.txt')
+    then:
+      extras.size() == 0
+      ord.value
+      verbose.value == 1 
+      starg.value == '--market.txt'
+  }
+
+  def "test that - is ok as an argument"() {
+    given:
+      final var sp = new StringParam(['fname'],'<FNAME> the file to use')
+      final var p = new Parser(sp)
+    when:
+      var extras = p.parse('--fname','-') 
+    then:
+      extras.size() == 0       
+      sp.value == '-'
+  }
 }
  

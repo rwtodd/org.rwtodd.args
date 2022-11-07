@@ -1,4 +1,5 @@
 package org.rwtodd.args;
+import java.util.Collection;
 
 /**
  * Represents a boolean flag, which takes no arguments, turns true when
@@ -6,19 +7,14 @@ package org.rwtodd.args;
  *
  * @author rwtodd
  */
-public class FlagParam extends Param<Boolean> {
+public class FlagParam extends BasicNoArgParam<Boolean> {
 
-    public FlagParam(String longname, char shortname, String help) {
-        super(longname, shortname, null, help, Boolean.FALSE);
-    }
+  public FlagParam(Collection<String> names, String help) {
+    super(names, Boolean.FALSE, help);
+  }
 
-    @Override
-    protected boolean needsArg() {
-        return false;
-    }
-
-    @Override
-    protected void acceptArg(String value) throws IllegalArgumentException {
-        this.arg = Boolean.TRUE;
-    }
+  @Override
+  public void process(String param) throws ArgParserException {
+    this.arg = Boolean.TRUE;
+  }
 }

@@ -1,24 +1,25 @@
 package org.rwtodd.args;
 
+import java.util.Collection;
+
 /**
  * A Param that counts the number of times it is seen.
  *
  * @author rwtodd
  */
-public class AccumulatingParam extends Param<Integer> {
+public class AccumulatingParam extends BasicNoArgParam<Integer> {
 
-    public AccumulatingParam(String longname, char shortname, String help) {
-        super(longname, shortname, null, help, 0);
-    }
+  public AccumulatingParam(Collection<String> names, int dflt, String help) {
+    super(names, dflt, help);
+  }
 
-    @Override
-    protected boolean needsArg() {
-        return false;
-    }
+  public AccumulatingParam(Collection<String> names, String help) {
+    this(names, 0, help);
+  }
 
-    @Override
-    protected void acceptArg(String value) throws IllegalArgumentException {
-        this.arg += 1;
-    }
+  @Override
+  public void process(String param) throws ArgParserException {
+    this.arg += 1;
+  }
 
 }

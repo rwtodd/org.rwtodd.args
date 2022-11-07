@@ -6,7 +6,7 @@ package org.rwtodd.args;
  * @author rwtodd
  */
 public class ArgParserException extends Exception {
-    /** Construct a ArgParserException.
+    /** Construct an ArgParserException.
      * 
      * @param desc what was the error?
      * @param cause what exception caused this one?
@@ -16,7 +16,8 @@ public class ArgParserException extends Exception {
     }
 
     /**
-     * Construct a ArgParserException.
+     * Construct an ArgParserException.
+     *
      * @param desc what was the error?
      */
     public ArgParserException(String desc) {

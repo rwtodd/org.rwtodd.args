@@ -222,5 +222,53 @@ class BasicTests extends Specification {
       extras.size() == 0       
       sp.value == '-'
   }
+
+  def "test bounded integer in range"() {
+    given:
+      final var bip = new BoundedIntParam(['seven-bit'], 0, 0, 127, "Give a 7-bit positive number")
+      final var p = new Parser(bip)
+    expect:
+      p.parse("--seven-bit=$n") == []
+      bip.value == n
+    where:
+      n << [0,1,10,126,127]
+  }
+
+  def "test bounded integer out of range"() {
+    given:
+      final var bip = new BoundedIntParam(['seven-bit'], 0, 0, 127, "Give a 7-bit positive number")
+      final var p = new Parser(bip)
+    when:
+      var extras = p.parse('--seven-bit=128')
+    then:
+      ArgParserException e = thrown()
+  }
+
+  def "test clamped integer in range"() {
+    given:
+    final var cip = new ClampedIntParam(['seven-bit'], 0, 0, 127, "Give a 7-bit positive number")
+    final var p = new Parser(cip)
+    expect:
+    p.parse("--seven-bit=$n") == []
+    cip.value == n
+    where:
+    n << [0,1,10,126,127]
+  }
+
+  def "test clamped integer out of range"() {
+    given:
+    final var cip = new ClampedIntParam(['seven-bit'], 0, 0, 127, "Give a 7-bit positive number")
+    final var p = new Parser(cip)
+    expect:
+    p.parse("--seven-bit=$n") == []
+    cip.value == cn
+    where:
+    n | cn
+    128 | 127
+    130 | 127
+    2000 | 127
+    -100 | 0
+    -1 | 0
+  }
 }
  

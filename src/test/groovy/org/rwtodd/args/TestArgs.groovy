@@ -311,5 +311,19 @@ class BasicTests extends Specification {
     then:
       ArgParserException e = thrown()
   }
+
+  private enum TestEnum { rocket, socket }
+  def "test enum params"() {
+    given:
+      final var ep = new EnumParam<>(TestEnum.class, "Give one of the enum values")
+      final var p = new Parser(ep)
+    expect:
+      p.parse(n) == []
+      ep.value == v
+    where:
+      n          | v
+      '--rocket' | TestEnum.rocket
+      '--socket' | TestEnum.socket
+  }
 }
  

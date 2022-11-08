@@ -26,6 +26,6 @@ public abstract class BasicNoArgParam<T> implements NoArgParam {
 
   @Override
   public void addHelp(PrintStream ps) {
-    // TODO: add method body!
+    Param.formatTypicalHelp(ps, Param.formatNames(paramNames), helpText);
   }
 }

@@ -5,7 +5,7 @@ import java.nio.file.Path;
 import java.util.Collection;
 
 /**
- * A param that takes expects an existing file on the filesystem
+ * A param that takes expects an existing file on the filesystem.
  * @author rwtodd
  */
 public class ExistingFileParam extends BasicOneArgParam<Path> {

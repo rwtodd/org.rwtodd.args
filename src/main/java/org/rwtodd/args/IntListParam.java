@@ -5,12 +5,13 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
- * A parameter type that accepts lists of integers.
+ * A parameter type that accepts lists of integers.  The list can take comma-separated
+ * integers, as well as dots-separated ranges, and combinations of these.  They will
+ * be combined into an `IntStream`.  The ends of the ranges are inclusive.  Example:
  *
- * The list can take comma-separated integers, as well as dots-separated ranges,
- * and combinations of these.  They will be combined into an `IntStream`.  Examples:
- *
+ * {@code
  *   1,5..8,13  ==> 1,5,6,7,8,13
+ *   }
  */
 public class IntListParam extends BasicOneArgParam<IntStream> {
 

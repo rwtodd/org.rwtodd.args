@@ -3,7 +3,8 @@ package org.rwtodd.args;
 import java.util.Collection;
 
 /**
- * A Param that counts the number of times it is seen.
+ * A Param that counts the number of times it is seen.  It starts counting from the
+ * default value, which is 0 if not provided.
  *
  * @author rwtodd
  */

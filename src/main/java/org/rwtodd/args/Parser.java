@@ -1,5 +1,6 @@
 package org.rwtodd.args;
 
+import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.HashMap;
@@ -8,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
- * Parses command-line arguments against given Param<T>'s.
+ * Parses command-line arguments against given {@link Param}s.
  *
  * @author rwtodd
  */
@@ -60,9 +61,16 @@ public class Parser {
        }
     }
 
-    private final Map<String, Param> parameterMap;
+    private final Map<String, Param> parameterMap; /* the map of paramter names to params */
+    private final Param[] parameters; /* the parameters as given by the user, in user-given order. */
 
+    /**
+     * Construct a command-line parser from a set of {@link Param} objects.
+     *
+     * @param ps the parameters to use for parsing.
+     */
     public Parser(Param... ps) {
+        parameters = ps;
         parameterMap = new HashMap<>();
         for (var p : ps) {  p.addToMap(parameterMap); }
     }
@@ -142,5 +150,17 @@ public class Parser {
       } else {
         throw new ArgParserException(String.format("Parameter <%s> not found!", param));
       }
+    }
+
+    /**
+     * Print help text for each parameter given to us by the user.  The parametrs
+     * are printed in the same order they were provided.
+     *
+     * @param ps the print stream to use for output.
+     */
+    public void printHelpText(PrintStream ps) {
+        for(Param p: parameters) {
+            p.addHelp(ps);
+        }
     }
 }

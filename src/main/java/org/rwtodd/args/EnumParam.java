@@ -1,11 +1,13 @@
 package org.rwtodd.args;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.io.PrintStream;
 
 /** A parameter which gives options based on enum values.
  * 
- *  The right way to instantiate it is liek this:
+ *  The right way to instantiate it is like this:
  *  {@code new EnumParam<>(MyEnum.class, "help string")}.
  */
 public class EnumParam<T extends Enum<T>> implements NoArgParam {
@@ -38,7 +40,12 @@ public class EnumParam<T extends Enum<T>> implements NoArgParam {
   * 
   * @param ps the stream to use
   */
-  public void addHelp(PrintStream ps) { /* TODO! */ }
+  public void addHelp(PrintStream ps) {
+      List.of(clz.getEnumConstants());
+      Param.formatTypicalHelp(ps,
+              Param.formatNames(Arrays.stream(clz.getEnumConstants()).map(e -> e.toString()).toList()),
+              helpStr);
+  }
 
   public void process(String param) throws ArgParserException {
     T x = Enum.valueOf(clz, param);

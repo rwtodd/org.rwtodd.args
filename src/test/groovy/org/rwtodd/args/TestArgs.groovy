@@ -246,22 +246,22 @@ class BasicTests extends Specification {
 
   def "test clamped integer in range"() {
     given:
-    final var cip = new ClampedIntParam(['seven-bit'], 0, 0, 127, "Give a 7-bit positive number")
-    final var p = new Parser(cip)
+      final var cip = new ClampedIntParam(['seven-bit'], 0, 0, 127, "Give a 7-bit positive number")
+      final var p = new Parser(cip)
     expect:
-    p.parse("--seven-bit=$n") == []
-    cip.value == n
+      p.parse("--seven-bit=$n") == []
+      cip.value == n
     where:
-    n << [0,1,10,126,127]
+      n << [0,1,10,126,127]
   }
 
   def "test clamped integer out of range"() {
     given:
-    final var cip = new ClampedIntParam(['seven-bit'], 0, 0, 127, "Give a 7-bit positive number")
-    final var p = new Parser(cip)
+      final var cip = new ClampedIntParam(['seven-bit'], 0, 0, 127, "Give a 7-bit positive number")
+      final var p = new Parser(cip)
     expect:
-    p.parse("--seven-bit=$n") == []
-    cip.value == cn
+      p.parse("--seven-bit=$n") == []
+      cip.value == cn
     where:
     n | cn
     128 | 127
@@ -269,6 +269,21 @@ class BasicTests extends Specification {
     2000 | 127
     -100 | 0
     -1 | 0
+  }
+
+  def "test Integer List argument"() {
+    given:
+      final var ilp = new IntListParam(['articles'], '<LIST> which articles to process?')
+      final var p = new Parser(ilp)
+    expect:
+      p.parse('--articles', lst) == []
+      ilp.value.boxed().toList() == nums
+    where:
+      lst         | nums
+      '1,2,3'     | [1,2,3]
+      '1,5..8,21' | [1,5,6,7,8,21]
+      '1..10'     | [1,2,3,4,5,6,7,8,9,10]
+      '5,4,1'     | [5,4,1]
   }
 }
  

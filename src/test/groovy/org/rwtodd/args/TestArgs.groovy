@@ -4,6 +4,11 @@ import spock.lang.Specification
 
 class BasicTests extends Specification {
 
+  // helper method to compare doubles with epsilon
+  static boolean sameAs(Double a, Double b) {
+    a == b || (Math.abs(a-b) < 0.0000001)
+  }
+
   def "test accumulator"() {
     given:
       final var verbose = new AccumulatingParam(['verbose', 'v'], "Be more verbose (can repeat this arg)")
@@ -284,6 +289,27 @@ class BasicTests extends Specification {
       '1,5..8,21' | [1,5,6,7,8,21]
       '1..10'     | [1,2,3,4,5,6,7,8,9,10]
       '5,4,1'     | [5,4,1]
+  }
+
+  def "test Double argument"() {
+    given:
+      final var dp = new DoubleParam(['flt'], "Give a floating-point number")
+      final var p = new Parser(dp)
+    expect:
+      p.parse("--flt=$n") == []
+      sameAs(dp.value,n)
+    where:
+      n << [0.0001,123.4567,21.2121,-1204.4123,-249123.3434313]
+  }
+
+  def "exception for bad Double argument"() {
+    given:
+      final var dp = new DoubleParam(['flt'], "Give a floating-point number")
+      final var p = new Parser(dp)
+    when:
+      p.parse("--flt=hi") == []
+    then:
+      ArgParserException e = thrown()
   }
 }
  

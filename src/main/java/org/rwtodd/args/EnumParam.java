@@ -26,7 +26,7 @@ public class EnumParam<T extends Enum<T>> implements NoArgParam {
      this(c, null, help);
   }
 
-  /** Add the parameter's names to a Map<String,Param>
+  /** Add the parameter's names to a {@code Map<String,Param>}.
    * 
    */
   public void addToMap(Map<String,Param> map) {

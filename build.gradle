@@ -6,6 +6,10 @@ plugins {
 
     // Apply the java-library plugin for API and implementation separation.
     id 'java-library'
+
+    // upload to Maven
+    id 'maven-publish'
+    id 'signing'
 }
 
 version = '1.0.0'
@@ -32,3 +36,63 @@ test {
     useJUnitPlatform()
 }
 
+java { 
+  withJavadocJar()
+  withSourcesJar()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'org.rwtodd.args'
+            from components.java
+            pom {
+                name = 'org.rwtodd.args'
+                description = 'A commandline-parsing library'
+                url = 'https://github.com/rwtodd/org.rwtodd.args'
+                //properties = [ ]
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://opensource.org/licenses/MIT'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'rwtodd'
+                        name = 'Richard Todd'
+                        email = 'rwtodd@users.noreply.github.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/rwtodd/org.rwtodd.args.git'
+                    developerConnection = 'scm:git:https://github.com/rwtodd/org.rwtodd.args.git'
+                    url = 'https://github.com/rwtodd/org.rwtodd.args'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2"
+            credentials {
+              username ossrhUsername
+              password ossrhPassword
+            }
+            // change URLs to point to your repos, e.g. http://my.org/repo
+            //def releasesRepoUrl = layout.buildDirectory.dir('repos/releases')
+            //def snapshotsRepoUrl = layout.buildDirectory.dir('repos/snapshots')
+            //url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava //configurations.archives
+}
+
+javadoc {
+  if(JavaVersion.current().isJava9Compatible()) {
+    options.addBooleanOption('html5',true)
+  }
+}

@@ -43,10 +43,20 @@ public abstract class BasicOneArgParam<T> implements OneArgParam {
 
   @Override
   public void addHelp(PrintStream ps) {
-    String nameLine = String.format("%s   <%s>",
-            Param.formatNames(paramNames),
-            arg.getClass().getSimpleName());
-    Param.formatTypicalHelp(ps, nameLine,helpText);
+    String htxt = helpText;
+    String argDesc = null;
+    if(htxt.startsWith("<")) {
+      int endidx = htxt.indexOf('>',1);
+      if(endidx > 1) {
+        htxt = helpText.substring(endidx+1).trim();
+        argDesc = helpText.substring(1,endidx);
+      }
+    }
+    if(argDesc == null) {
+      argDesc = (arg != null) ? arg.getClass().getSimpleName() : "Argument";
+    }
+    String nameLine = String.format("%s   <%s>", Param.formatNames(paramNames), argDesc);
+    Param.formatTypicalHelp(ps, nameLine, htxt);
   }
 
   /**

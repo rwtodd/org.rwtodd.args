@@ -12,11 +12,11 @@ plugins {
     id 'signing'
 }
 
-version = '1.0.1'
+version = '1.0.3'
 group = 'org.rwtodd'
 
 compileJava {
-    options.release = 19
+    options.release = 17
 }
 
 repositories {

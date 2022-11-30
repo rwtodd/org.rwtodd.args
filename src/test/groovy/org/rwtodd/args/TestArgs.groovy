@@ -1,6 +1,7 @@
 package org.rwtodd.args
 
 import spock.lang.Specification
+import java.time.LocalDate
 
 class BasicTests extends Specification {
 
@@ -324,6 +325,37 @@ class BasicTests extends Specification {
       n          | v
       '--rocket' | TestEnum.rocket
       '--socket' | TestEnum.socket
+  }
+
+  def "test date params"() {
+    given:
+    final var ep = new DateParam(['date'], "Give a yyyy-mm-dd date")
+    final Parser p = [ep]
+    expect:
+    p.parse(n) == []
+    ep.value == v
+    where:
+    n                   | v
+    '--date=2004-03-11' | LocalDate.of(2004,3,11)
+    '--date=2025-5-5'   | LocalDate.of(2025,5,5)
+    '--date=7-12'       | LocalDate.of(LocalDate.now().getYear(),7,12)
+  }
+
+  def "test date advanced params"() {
+    given:
+    final LocalDate now = LocalDate.now()
+    final var ep = new DateParam(['date'], "Give a yyyy-mm-dd date")
+    final Parser p = [ep]
+    expect:
+    p.parse(n) == []
+    ep.value == now.plusDays(v)
+    where:
+    n                   | v
+    '--date=today'      | 0
+    '--date=yesterday'  | -1
+    '--date=tomorrow'   | 1
+    '--date=t+40'       | 40
+    '--date=t-10'       | -10
   }
 }
  

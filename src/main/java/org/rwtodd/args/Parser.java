@@ -21,9 +21,9 @@ public class Parser {
        private final String[] argList;
        private int argIdx; // index into argList
 
-       ArgumentIterator(String[] args) {
+       ArgumentIterator(String[] args, int skip) {
           argList = args;
-          argIdx = -1;
+          argIdx = skip - 1;
           verbatim = false;
        } 
 
@@ -80,12 +80,13 @@ public class Parser {
      * params in an array.
      *
      * @param args the command-line arguments
+     * @param skip how many entries in args to skip before processing
      * @return any non-param strings from the input
      * @throws org.rwtodd.args.ArgParserException when a problem is
      *    encountered
      */
-    public List<String> parse(String... args) throws ArgParserException {
-        var iter = new ArgumentIterator(args);
+    public List<String> parse(String[] args, int skip) throws ArgParserException {
+        var iter = new ArgumentIterator(args, skip);
         var remainingArgs = new ArrayList<String>();
           
         while (iter.advance()) {
@@ -110,6 +111,22 @@ public class Parser {
           }
         }
         return remainingArgs;
+    }
+
+    /**
+     * parses the given args, and returns any elements that don't appear to be
+     * params in an array.  It skips no arguments, since in java, there is no
+     * first argument with a program name. To skip a different amount (for instance,
+     * if your command-line had subcommands to parse prior to command-line args),
+     * call the overload of this method that has 2 arguments.
+     *
+     * @param args the command-line arguments
+     * @return any non-param strings from the input
+     * @throws org.rwtodd.args.ArgParserException when a problem is
+     *    encountered
+     */
+    public List<String> parse(String[] args) throws ArgParserException {
+        return parse(args,0);
     }
 
     private void runParamWithArg(String param, String arg) throws ArgParserException {

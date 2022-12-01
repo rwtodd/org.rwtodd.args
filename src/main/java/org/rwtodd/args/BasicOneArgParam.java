@@ -2,7 +2,6 @@ package org.rwtodd.args;
 
 import java.io.PrintStream;
 import java.util.Map;
-import java.util.Collection;
 
 /**
  * A base class for a typical 1-argument parameter.  It is expected
@@ -13,7 +12,7 @@ import java.util.Collection;
  */
 public abstract class BasicOneArgParam<T> implements OneArgParam {
   protected T arg;
-  protected final Collection<String> paramNames;
+  protected final Iterable<String> paramNames;
   protected final String helpText;
 
   /**
@@ -22,7 +21,7 @@ public abstract class BasicOneArgParam<T> implements OneArgParam {
    * @param dflt the default, starting value of the parameter.
    * @param help the help string for this parameter.
    */
-  public BasicOneArgParam(Collection<String> names, T dflt, String help) {
+  public BasicOneArgParam(Iterable<String> names, T dflt, String help) {
     arg = dflt;
     paramNames = names;
     helpText = help; 

@@ -1,11 +1,9 @@
 package org.rwtodd.args;
 
-import java.util.Collection;
-
 public class ClampedIntParam extends IntParam {
     private final int min, max;
 
-    public ClampedIntParam(Collection<String> names, Integer dflt, int min, int max, String help) {
+    public ClampedIntParam(Iterable<String> names, Integer dflt, int min, int max, String help) {
         super(names, dflt, help);
         this.min = min;
         this.max = max;

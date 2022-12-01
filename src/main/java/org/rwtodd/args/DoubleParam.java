@@ -1,7 +1,5 @@
 package org.rwtodd.args;
 
-import java.util.Collection;
-
 /**
  * DoubleParam is a Param that accepts double arguments.
  *
@@ -10,11 +8,11 @@ import java.util.Collection;
  */
 public class DoubleParam extends BasicOneArgParam<Double> {
 
-  public DoubleParam(Collection<String> names, Double dflt, String help) {
+  public DoubleParam(Iterable<String> names, Double dflt, String help) {
     super(names, dflt, help);
   }
     
-  public DoubleParam(Collection<String> names, String help) {
+  public DoubleParam(Iterable<String> names, String help) {
     super(names, Double.NaN, help);
   }
 

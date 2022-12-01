@@ -2,14 +2,13 @@ package org.rwtodd.args;
 
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.Collection;
 
 public class DateParam extends BasicOneArgParam<LocalDate> {
 
-    public DateParam(Collection<String> names, LocalDate dflt, String help) {
+    public DateParam(Iterable<String> names, LocalDate dflt, String help) {
         super(names, dflt, help);
     }
-    public DateParam(Collection<String> names, String help) {
+    public DateParam(Iterable<String> names, String help) {
         this(names, LocalDate.now(), help);
     }
 

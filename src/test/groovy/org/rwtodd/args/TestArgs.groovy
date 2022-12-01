@@ -15,7 +15,7 @@ class BasicTests extends Specification {
       final var verbose = new AccumulatingParam(['verbose', 'v'], "Be more verbose (can repeat this arg)")
       final var p = new Parser(verbose)
     when:
-      var extras = p.parse('-vvvv', '-v')
+      var extras = p.parse(new String[] {'subcommand', '-vvvv', '-v'}, 1)
     then:
       extras.empty
       verbose.value == 5
@@ -26,7 +26,7 @@ class BasicTests extends Specification {
       final var ip = new IntParam(['count'], "<N> The count of things.");
       final var p = new Parser(ip);
     when:
-      var extras = p.parse("file", "file");
+      var extras = p.parse(new String[] {'subcommand', 'skip', "file", "file"}, 2);
     then:
       extras.size() == 2
       ip.value == Integer.MIN_VALUE
@@ -37,7 +37,7 @@ class BasicTests extends Specification {
       final var ip = new IntParam(['count'], "<N> The count of things.");
       final var p = new Parser(ip);
     when:
-      var extras = p.parse('--count=21');
+      var extras = p.parse(new String[] {'--count=21'}, 0);
     then:
       extras.size() == 0
       ip.value == 21
@@ -81,7 +81,7 @@ class BasicTests extends Specification {
       final var sp = new StringParam(['name'], "<NAME> The name you want.")
       final var p = new Parser(sp)
     when:
-      var extras = p.parse('--name=', 'file');
+      var extras = p.parse(new String[] { 'subcommand', '--name=', 'file'}, 1);
     then:
       extras.size() == 1
       sp.value == ''
@@ -102,7 +102,7 @@ class BasicTests extends Specification {
     given:
       final var p = new Parser(new IntParam(['orders','o'], 5, "<COUNT> how many?"))
     when:
-      var extras = p.parse('-o')
+      var extras = p.parse(new String[] {'-o'}, 0)
     then:
       ArgParserException e = thrown()
   }
@@ -112,7 +112,7 @@ class BasicTests extends Specification {
       final var ip = new IntParam(['orders','o'], 5, "<COUNT> how many?")
       final var p = new Parser(ip)
     when:
-      var extras = p.parse('-o', '2')
+      var extras = p.parse( '-o', '2')
     then:
       extras.empty
       ip.value == 2
@@ -175,7 +175,7 @@ class BasicTests extends Specification {
       final var starg = new StringParam(['fname','f'], '<FNAME> the File name')
       final var p = new Parser(ord,verbose,starg)
     when:
-      var extras = p.parse('-vof')
+      var extras = p.parse(new String[] {'-vof'}, 0)
     then:
       ArgParserException e = thrown()
   }
@@ -197,7 +197,7 @@ class BasicTests extends Specification {
       final var ord = new FlagParam(['orders','o'], "send orders?")
       final var p = new Parser(ord)
     when:
-      var extras = p.parse('--', '-vof', '--', '--market.txt')
+      var extras = p.parse(new String[] { 'subcommand', '--', '-vof', '--', '--market.txt'}, 1)
     then:
       !ord.value
       extras == ['-vof', '--', '--market.txt']
@@ -223,7 +223,7 @@ class BasicTests extends Specification {
       final var sp = new StringParam(['fname'],'<FNAME> the file to use')
       final var p = new Parser(sp)
     when:
-      var extras = p.parse('--fname','-') 
+      var extras = p.parse('--fname','-')
     then:
       extras.size() == 0       
       sp.value == '-'
@@ -234,7 +234,7 @@ class BasicTests extends Specification {
       final var bip = new BoundedIntParam(['seven-bit'], 0, 0, 127, "Give a 7-bit positive number")
       final var p = new Parser(bip)
     expect:
-      p.parse("--seven-bit=$n") == []
+      p.parse(new String[] {"--seven-bit=$n"}, 0) == []
       bip.value == n
     where:
       n << [0,1,10,126,127]
@@ -245,7 +245,7 @@ class BasicTests extends Specification {
       final var bip = new BoundedIntParam(['seven-bit'], 0, 0, 127, "Give a 7-bit positive number")
       final var p = new Parser(bip)
     when:
-      var extras = p.parse('--seven-bit=128')
+      var extras = p.parse(new String[] { '--seven-bit=128'}, 0)
     then:
       ArgParserException e = thrown()
   }
@@ -255,7 +255,7 @@ class BasicTests extends Specification {
       final var cip = new ClampedIntParam(['seven-bit'], 0, 0, 127, "Give a 7-bit positive number")
       final var p = new Parser(cip)
     expect:
-      p.parse("--seven-bit=$n") == []
+      p.parse(new String[] {"--seven-bit=$n"}, 0) == []
       cip.value == n
     where:
       n << [0,1,10,126,127]
@@ -266,7 +266,7 @@ class BasicTests extends Specification {
       final var cip = new ClampedIntParam(['seven-bit'], 0, 0, 127, "Give a 7-bit positive number")
       final var p = new Parser(cip)
     expect:
-      p.parse("--seven-bit=$n") == []
+      p.parse(new String[] {"--seven-bit=$n"}, 0) == []
       cip.value == cn
     where:
     n | cn
@@ -297,7 +297,7 @@ class BasicTests extends Specification {
       final var dp = new DoubleParam(['flt'], "Give a floating-point number")
       final var p = new Parser(dp)
     expect:
-      p.parse("--flt=$n") == []
+      p.parse(new String[] { "--flt=$n" }, 0) == []
       sameAs(dp.value,n)
     where:
       n << [0.0001,123.4567,21.2121,-1204.4123,-249123.3434313]
@@ -308,7 +308,7 @@ class BasicTests extends Specification {
       final var dp = new DoubleParam(['flt'], "Give a floating-point number")
       final var p = new Parser(dp)
     when:
-      p.parse("--flt=hi") == []
+      p.parse('--flt=hi') == []
     then:
       ArgParserException e = thrown()
   }
@@ -319,7 +319,7 @@ class BasicTests extends Specification {
       final var ep = new EnumParam<>(TestEnum.class, "Give one of the enum values")
       final var p = new Parser(ep)
     expect:
-      p.parse(n) == []
+      p.parse(new String[] {n},0) == []
       ep.value == v
     where:
       n          | v
@@ -332,7 +332,7 @@ class BasicTests extends Specification {
     final var ep = new DateParam(['date'], "Give a yyyy-mm-dd date")
     final Parser p = [ep]
     expect:
-    p.parse(n) == []
+    p.parse(new String[] {n},0) == []
     ep.value == v
     where:
     n                   | v
@@ -347,7 +347,7 @@ class BasicTests extends Specification {
     final var ep = new DateParam(['date'], "Give a yyyy-mm-dd date")
     final Parser p = [ep]
     expect:
-    p.parse(n) == []
+    p.parse(new String[] {n},0) == []
     ep.value == now.plusDays(v)
     where:
     n                   | v

@@ -1,5 +1,4 @@
 package org.rwtodd.args;
-import java.util.Collection;
 
 /**
  * Represents a boolean flag, which takes no arguments, turns true when
@@ -9,7 +8,7 @@ import java.util.Collection;
  */
 public class FlagParam extends BasicNoArgParam<Boolean> {
 
-  public FlagParam(Collection<String> names, String help) {
+  public FlagParam(Iterable<String> names, String help) {
     super(names, Boolean.FALSE, help);
   }
 

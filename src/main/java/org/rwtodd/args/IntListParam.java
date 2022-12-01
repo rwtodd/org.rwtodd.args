@@ -1,8 +1,6 @@
 package org.rwtodd.args;
 
-import java.util.Collection;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 /**
  * A parameter type that accepts lists of integers.  The list can take comma-separated
@@ -15,11 +13,11 @@ import java.util.stream.Stream;
  */
 public class IntListParam extends BasicOneArgParam<IntStream> {
 
-    public IntListParam(Collection<String> names, IntStream dflt, String help) {
+    public IntListParam(Iterable<String> names, IntStream dflt, String help) {
         super(names, dflt, help);
     }
 
-    public IntListParam(Collection<String> names, String help) {
+    public IntListParam(Iterable<String> names, String help) {
         this(names, IntStream.empty(), help);
     }
 

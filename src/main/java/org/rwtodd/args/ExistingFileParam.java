@@ -2,7 +2,6 @@ package org.rwtodd.args;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
 
 /**
  * A param that takes expects an existing file on the filesystem.
@@ -10,11 +9,11 @@ import java.util.Collection;
  */
 public class ExistingFileParam extends BasicOneArgParam<Path> {
 
-    public ExistingFileParam(Collection<String> names, Path dflt, String help) {
+    public ExistingFileParam(Iterable<String> names, Path dflt, String help) {
         super(names, dflt, help);
     }
     
-    public ExistingFileParam(Collection<String> names, String help) {
+    public ExistingFileParam(Iterable<String> names, String help) {
         this(names, null, help);
     }
     

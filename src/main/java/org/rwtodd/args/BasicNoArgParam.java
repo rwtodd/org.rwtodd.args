@@ -1,15 +1,14 @@
 package org.rwtodd.args;
 
 import java.io.PrintStream;
-import java.util.Collection;
 import java.util.Map;
 
 public abstract class BasicNoArgParam<T> implements NoArgParam {
   T arg;
-  protected final Collection<String> paramNames;
+  protected final Iterable<String> paramNames;
   protected final String helpText;
 
-  public BasicNoArgParam(Collection<String> names, T dflt, String help) {
+  public BasicNoArgParam(Iterable<String> names, T dflt, String help) {
     arg = dflt;
     paramNames = names;
     helpText = help; 

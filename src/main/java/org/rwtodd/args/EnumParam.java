@@ -43,14 +43,16 @@ public class EnumParam<T extends Enum<T>> implements NoArgParam {
   public void addHelp(PrintStream ps) {
       List.of(clz.getEnumConstants());
       Param.formatTypicalHelp(ps,
-              Param.formatNames(Arrays.stream(clz.getEnumConstants()).map(e -> e.toString()).toList()),
+              Param.formatNames(Arrays.stream(clz.getEnumConstants()).map(Enum::toString).toList()),
               helpStr);
   }
 
   public void process(String param) throws ArgParserException {
-    T x = Enum.valueOf(clz, param);
-    if(x == null) throw new ArgParserException(String.format("Param <%s> should be a defined constant, but it isn't!", param));
-    value = x;
+    try {
+        value = Enum.valueOf(clz, param);
+    } catch(Exception e) {
+        throw new ArgParserException(String.format("Param <%s> should be a defined constant, but it isn't!", param));
+    }
   }
   
   public T getValue() { return value; }

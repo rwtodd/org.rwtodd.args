@@ -10,7 +10,7 @@ import java.util.Map;
  *
  * @param <T> the type of the value maintained by this parameter.
  */
-public abstract class BasicOneArgParam<T> implements OneArgParam {
+public abstract class BasicOneArgParam<T> implements OneArgParam<T> {
   protected T arg;
   protected final Iterable<String> paramNames;
   protected final String helpText;
@@ -31,7 +31,7 @@ public abstract class BasicOneArgParam<T> implements OneArgParam {
    * Fetch the value stored by this parameter.
    * @return the value.
    */
-  public T getValue() { return arg; }
+  @Override public T getValue() { return arg; }
 
   @Override
   public void addToMap(Map<String,Param> map) {

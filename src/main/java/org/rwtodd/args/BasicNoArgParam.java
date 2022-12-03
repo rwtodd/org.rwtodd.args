@@ -3,7 +3,7 @@ package org.rwtodd.args;
 import java.io.PrintStream;
 import java.util.Map;
 
-public abstract class BasicNoArgParam<T> implements NoArgParam {
+public abstract class BasicNoArgParam<T> implements NoArgParam<T> {
   T arg;
   protected final Iterable<String> paramNames;
   protected final String helpText;
@@ -14,7 +14,7 @@ public abstract class BasicNoArgParam<T> implements NoArgParam {
     helpText = help; 
   }
 
-  public T getValue() { return arg; }
+  @Override public T getValue() { return arg; }
 
   @Override
   public void addToMap(Map<String,Param> map) {

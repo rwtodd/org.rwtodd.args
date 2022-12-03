@@ -10,7 +10,7 @@ import java.io.PrintStream;
  *  The right way to instantiate it is like this:
  *  {@code new EnumParam<>(MyEnum.class, "help string")}.
  */
-public class EnumParam<T extends Enum<T>> implements NoArgParam {
+public class EnumParam<T extends Enum<T>> implements NoArgParam<T> {
   private final Class<T> clz; // need to hold on to the enum class, silly Java!
   private final String helpStr;
   private T value;
@@ -29,7 +29,8 @@ public class EnumParam<T extends Enum<T>> implements NoArgParam {
   /** Add the parameter's names to a {@code Map<String,Param>}.
    * 
    */
-  public void addToMap(Map<String,Param> map) {
+  @Override
+  public void addToMap(Map<String, Param> map) {
      for(T econst: clz.getEnumConstants()) {
        map.put(econst.toString(), this);
      }

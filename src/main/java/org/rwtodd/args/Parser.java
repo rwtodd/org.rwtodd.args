@@ -1,12 +1,10 @@
 package org.rwtodd.args;
 
 import java.io.PrintStream;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 /**
  * Parses command-line arguments against given {@link Param}s.
@@ -27,7 +25,6 @@ public class Parser {
           verbatim = false;
        } 
 
-       boolean isVerbatim() { return verbatim; }
        boolean advance() {
          if(++argIdx < argList.length) {
            if(!verbatim && argList[argIdx].equals("--")) {
@@ -61,7 +58,7 @@ public class Parser {
        }
     }
 
-    private final Map<String, Param> parameterMap; /* the map of paramter names to params */
+    private final Map<String, Param> parameterMap; /* the map of parameter names to params */
     private final Param[] parameters; /* the parameters as given by the user, in user-given order. */
 
     /**
@@ -73,6 +70,8 @@ public class Parser {
         parameters = ps;
         parameterMap = new HashMap<>();
         for (var p : ps) {  p.addToMap(parameterMap); }
+        /* make sure no decorative params made it to the parser map */
+        assert(parameterMap.values().stream().noneMatch(p -> p instanceof DecorativeParam));
     }
 
     /**
@@ -131,9 +130,9 @@ public class Parser {
 
     private void runParamWithArg(String param, String arg) throws ArgParserException {
       Param p = parameterMap.get(param);
-      if(p instanceof OneArgParam oap) {
+      if(p instanceof OneArgParam<?> oap) {
         oap.process(param,arg);
-      } else if(p instanceof NoArgParam nap) {
+      } else if(p instanceof NoArgParam<?>) {
         throw new ArgParserException(String.format("Parameter <%s> does not take arguments!",
                                                    param));
       } else {
@@ -143,9 +142,9 @@ public class Parser {
 
     private void runParamWithoutArg(String param) throws ArgParserException {
       Param p = parameterMap.get(param);
-      if(p instanceof NoArgParam nap) {
+      if(p instanceof NoArgParam<?> nap) {
         nap.process(param);
-      } else if(p instanceof OneArgParam nap) {
+      } else if(p instanceof OneArgParam<?>) {
         throw new ArgParserException(String.format("Parameter <%s> needs an argument!",
                                                    param));
       } else {
@@ -155,14 +154,14 @@ public class Parser {
 
     private void runParam(String param, ArgumentIterator iter) throws ArgParserException {
       Param p = parameterMap.get(param);
-      if(p instanceof OneArgParam oap) {
+      if(p instanceof OneArgParam<?> oap) {
         if(iter.advance() && iter.isNotDashed()) {
           oap.process(param, iter.getCurrent());        
         } else {
           throw new ArgParserException(String.format("Parameter <%s> was not given an argument!",
                                                      param));
         }
-      } else if(p instanceof NoArgParam nap) {
+      } else if(p instanceof NoArgParam<?> nap) {
         nap.process(param);
       } else {
         throw new ArgParserException(String.format("Parameter <%s> not found!", param));

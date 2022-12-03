@@ -11,7 +11,7 @@ import java.util.Map;
  * 
  * @author rwtodd
  */
-public sealed interface Param permits OneArgParam, NoArgParam {
+public sealed interface Param permits OneArgParam, NoArgParam, DecorativeParam {
     /** Add the parameter's names to a {@code Map<String,Param>}.
      *
      * @param map the {@code Map} to which our names should be added.

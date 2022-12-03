@@ -5,7 +5,7 @@ package org.rwtodd.args;
  *
  * @author rwtodd
  */
-public non-sealed interface OneArgParam extends Param {
+public non-sealed interface OneArgParam<T> extends Param {
   /**
    * Process an parameter with its argument.
    * @param param the name of the parameter, as it was found in the command-line.
@@ -13,4 +13,7 @@ public non-sealed interface OneArgParam extends Param {
    * @throws ArgParserException if there is a problem parsing the argument.
    */
   void process(String param, String argument) throws ArgParserException;
+
+  /** gets the current value of the parameter */
+  T getValue();
 }

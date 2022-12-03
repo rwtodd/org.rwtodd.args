@@ -12,7 +12,7 @@ class BasicTests extends Specification {
 
   def "test accumulator"() {
     given:
-      final var verbose = new AccumulatingParam(['verbose', 'v'], "Be more verbose (can repeat this arg)")
+      final var verbose = new CountingParam(['verbose', 'v'], "Be more verbose (can repeat this arg)")
       final var p = new Parser(verbose)
     when:
       var extras = p.parse(new String[] {'subcommand', '-vvvv', '-v'}, 1)
@@ -143,7 +143,7 @@ class BasicTests extends Specification {
   def "test splitting combined small flags"() {
     given:
       final var ord = new FlagParam(['orders','o'], "send orders?")
-      final var verbose = new AccumulatingParam(['verbose', 'v'], "Be more verbose (can repeat this arg)")
+      final var verbose = new CountingParam(['verbose', 'v'], "Be more verbose (can repeat this arg)")
       final var p = new Parser(ord,verbose)
     when:
       var extras = p.parse('-vovv', 'ho')
@@ -156,7 +156,7 @@ class BasicTests extends Specification {
   def "test splitting combined small flags with arg"() {
     given:
       final var ord = new FlagParam(['orders','o'], "send orders?")
-      final var verbose = new AccumulatingParam(['verbose', 'v'], "Be more verbose (can repeat this arg)")
+      final var verbose = new CountingParam(['verbose', 'v'], "Be more verbose (can repeat this arg)")
       final var starg = new StringParam(['fname','f'], '<FNAME> the File name')
       final var p = new Parser(ord,verbose,starg)
     when:
@@ -171,7 +171,7 @@ class BasicTests extends Specification {
   def "test small flags with missing arg"() {
     given:
       final var ord = new FlagParam(['orders','o'], "send orders?")
-      final var verbose = new AccumulatingParam(['verbose', 'v'], "Be more verbose (can repeat this arg)")
+      final var verbose = new CountingParam(['verbose', 'v'], "Be more verbose (can repeat this arg)")
       final var starg = new StringParam(['fname','f'], '<FNAME> the File name')
       final var p = new Parser(ord,verbose,starg)
     when:
@@ -183,7 +183,7 @@ class BasicTests extends Specification {
   def "test small flags with out-of-order arg"() {
     given:
       final var ord = new FlagParam(['orders','o'], "send orders?")
-      final var verbose = new AccumulatingParam(['verbose', 'v'], "Be more verbose (can repeat this arg)")
+      final var verbose = new CountingParam(['verbose', 'v'], "Be more verbose (can repeat this arg)")
       final var starg = new StringParam(['fname','f'], '<FNAME> the File name')
       final var p = new Parser(ord,verbose,starg)
     when:
@@ -206,7 +206,7 @@ class BasicTests extends Specification {
   def "test of -- verbatim args 2"() {
     given:
       final var ord = new FlagParam(['orders','o'], "send orders?")
-      final var verbose = new AccumulatingParam(['verbose', 'v'], "Be more verbose (can repeat this arg)")
+      final var verbose = new CountingParam(['verbose', 'v'], "Be more verbose (can repeat this arg)")
       final var starg = new StringParam(['fname','f'], '<FNAME> the File name')
       final var p = new Parser(ord,verbose,starg)
     when:
@@ -356,6 +356,17 @@ class BasicTests extends Specification {
     '--date=tomorrow'   | 1
     '--date=t+40'       | 40
     '--date=t-10'       | -10
+  }
+
+  def "test appending param"() {
+    given:
+    final var ap = new AppendingParam(new IntParam(['port','p'], null, "the ports to use"))
+    final Parser p = [ap]
+    when:
+    var extras = p.parse('--port=5','--port=10','-p','15')
+    then:
+    extras.size() == 0
+    ap.value == [5,10,15]
   }
 }
  

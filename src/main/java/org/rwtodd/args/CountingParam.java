@@ -6,13 +6,13 @@ package org.rwtodd.args;
  *
  * @author rwtodd
  */
-public class AccumulatingParam extends BasicNoArgParam<Integer> {
+public class CountingParam extends BasicNoArgParam<Integer> {
 
-  public AccumulatingParam(Iterable<String> names, int dflt, String help) {
+  public CountingParam(Iterable<String> names, int dflt, String help) {
     super(names, dflt, help);
   }
 
-  public AccumulatingParam(Iterable<String> names, String help) {
+  public CountingParam(Iterable<String> names, String help) {
     this(names, 0, help);
   }
 

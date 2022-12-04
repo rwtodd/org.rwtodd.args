@@ -27,9 +27,11 @@ class BoundTests extends Specification {
         final var bip = new BoundedParam(new IntParam(['seven-bit'], 0, "Give a 7-bit positive number"), 0, 127)
         final var p = new Parser(bip)
         when:
-        var extras = p.parse(new String[] { '--seven-bit=128'}, 0)
+        var extras = p.parse(new String[] { "--seven-bit=$n"}, 0)
         then:
         ArgParserException e = thrown()
+        where:
+        n << ["128", "2038", "-1"]
     }
 
     def "test bounded integer out of range exclusive"() {
@@ -37,9 +39,11 @@ class BoundTests extends Specification {
         final var bip = new BoundedParam(new IntParam(['seven-bit'], 0, "Give a 7-bit positive number"), 0, 127, BoundedParam.BoundType.Exclusive)
         final var p = new Parser(bip)
         when:
-        var extras = p.parse(new String[] { '--seven-bit=127'}, 0)
+        var extras = p.parse(new String[] { "--seven-bit=$n"}, 0)
         then:
         ArgParserException e = thrown()
+        where:
+        n << ["127", "208", "-1", "-102"]
     }
 
 
@@ -59,9 +63,11 @@ class BoundTests extends Specification {
         final var bip = new BoundedParam(new DoubleParam(['unit'], 0.0d, "Give a unit [0,1] number"), 0.0d, 1.0d)
         final var p = new Parser(bip)
         when:
-        var extras = p.parse(new String[] { '--unit=1.1'}, 0)
+        var extras = p.parse(new String[] { "--unit=$n"}, 0)
         then:
         ArgParserException e = thrown()
+        where:
+        n << ["1.1", "3.1", "-0.001"]
     }
 
     def "test bounded double out of range exclusive"() {
@@ -69,9 +75,11 @@ class BoundTests extends Specification {
         final var bip = new BoundedParam(new DoubleParam(['unit'], 0.0d, "Give a unit [0,1) number"), 0.0d, 1.0d, BoundedParam.BoundType.Exclusive)
         final var p = new Parser(bip)
         when:
-        var extras = p.parse(new String[] { '--unit=1.0'}, 0)
+        var extras = p.parse(new String[] { "--unit=$n"}, 0)
         then:
         ArgParserException e = thrown()
+        where:
+        n << ["1.0","2.0","-0.0001"]
     }
 
 }

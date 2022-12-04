@@ -232,5 +232,17 @@ class MiscTests extends Specification {
     extras.size() == 0
     ap.value == [5,10,15]
   }
+
+  def "test char param"() {
+    given:
+    final var cp = new CharParam(['ch'], "a char.")
+    final var p = new Parser(cp)
+    when:
+    var extras = p.parse(new String[] {'subcommand', 'skip', '--ch=v', 'mice'}, 2);
+    then:
+    extras.size() == 1
+    cp.value == (char)'v'
+  }
+
 }
  

@@ -18,7 +18,7 @@ public class CharParam extends BasicOneArgParam<Character> {
 
   @Override
   protected Character convertArg(String param, String arg) throws ArgParserException {
-    if(param.length() != 1)
+    if(arg.length() != 1)
       throw new ArgParserException(String.format("Argument for <%s> is not a single character!", param));
     return arg.charAt(0);
   }

@@ -3,7 +3,7 @@ package org.rwtodd.args
 import spock.lang.Specification
 import java.time.LocalDate
 
-class BasicTests extends Specification {
+class MiscTests extends Specification {
 
   // helper method to compare doubles with epsilon
   static boolean sameAs(Double a, Double b) {
@@ -118,80 +118,6 @@ class BasicTests extends Specification {
       ip.value == 2
   }
 
-  def "test flag not given"() {
-    given:
-      final var fp = new FlagParam(['orders','o'], "send orders?")
-      final var p = new Parser(fp)
-    when:
-      var extras = p.parse('ho', 'ho')
-    then:
-      extras.size() == 2
-      !fp.value
-  }
-
-  def "test flag is given"() {
-    given:
-      final var fp = new FlagParam(['orders','o'], "send orders?")
-      final var p = new Parser(fp)
-    when:
-      var extras = p.parse('-o', 'ho')
-    then:
-      extras.size() == 1
-      fp.value
-  }
-
-  def "test splitting combined small flags"() {
-    given:
-      final var ord = new FlagParam(['orders','o'], "send orders?")
-      final var verbose = new CountingParam(['verbose', 'v'], "Be more verbose (can repeat this arg)")
-      final var p = new Parser(ord,verbose)
-    when:
-      var extras = p.parse('-vovv', 'ho')
-    then:
-      extras.size() == 1
-      ord.value
-      verbose.value == 3 
-  }
-
-  def "test splitting combined small flags with arg"() {
-    given:
-      final var ord = new FlagParam(['orders','o'], "send orders?")
-      final var verbose = new CountingParam(['verbose', 'v'], "Be more verbose (can repeat this arg)")
-      final var starg = new StringParam(['fname','f'], '<FNAME> the File name')
-      final var p = new Parser(ord,verbose,starg)
-    when:
-      var extras = p.parse('-vof', 'market.txt')
-    then:
-      extras.size() == 0
-      ord.value
-      verbose.value == 1 
-      starg.value == 'market.txt'
-  }
-
-  def "test small flags with missing arg"() {
-    given:
-      final var ord = new FlagParam(['orders','o'], "send orders?")
-      final var verbose = new CountingParam(['verbose', 'v'], "Be more verbose (can repeat this arg)")
-      final var starg = new StringParam(['fname','f'], '<FNAME> the File name')
-      final var p = new Parser(ord,verbose,starg)
-    when:
-      var extras = p.parse(new String[] {'-vof'}, 0)
-    then:
-      ArgParserException e = thrown()
-  }
-
-  def "test small flags with out-of-order arg"() {
-    given:
-      final var ord = new FlagParam(['orders','o'], "send orders?")
-      final var verbose = new CountingParam(['verbose', 'v'], "Be more verbose (can repeat this arg)")
-      final var starg = new StringParam(['fname','f'], '<FNAME> the File name')
-      final var p = new Parser(ord,verbose,starg)
-    when:
-      var extras = p.parse('-vfo', 'market.txt')
-    then:
-      ArgParserException e = thrown()
-  }
-
   def "test of -- verbatim args 1"() {
     given:
       final var ord = new FlagParam(['orders','o'], "send orders?")
@@ -229,54 +155,6 @@ class BasicTests extends Specification {
       sp.value == '-'
   }
 
-  def "test bounded integer in range"() {
-    given:
-      final var bip = new BoundedIntParam(['seven-bit'], 0, 0, 127, "Give a 7-bit positive number")
-      final var p = new Parser(bip)
-    expect:
-      p.parse(new String[] {"--seven-bit=$n"}, 0) == []
-      bip.value == n
-    where:
-      n << [0,1,10,126,127]
-  }
-
-  def "test bounded integer out of range"() {
-    given:
-      final var bip = new BoundedIntParam(['seven-bit'], 0, 0, 127, "Give a 7-bit positive number")
-      final var p = new Parser(bip)
-    when:
-      var extras = p.parse(new String[] { '--seven-bit=128'}, 0)
-    then:
-      ArgParserException e = thrown()
-  }
-
-  def "test clamped integer in range"() {
-    given:
-      final var cip = new ClampedIntParam(['seven-bit'], 0, 0, 127, "Give a 7-bit positive number")
-      final var p = new Parser(cip)
-    expect:
-      p.parse(new String[] {"--seven-bit=$n"}, 0) == []
-      cip.value == n
-    where:
-      n << [0,1,10,126,127]
-  }
-
-  def "test clamped integer out of range"() {
-    given:
-      final var cip = new ClampedIntParam(['seven-bit'], 0, 0, 127, "Give a 7-bit positive number")
-      final var p = new Parser(cip)
-    expect:
-      p.parse(new String[] {"--seven-bit=$n"}, 0) == []
-      cip.value == cn
-    where:
-    n | cn
-    128 | 127
-    130 | 127
-    2000 | 127
-    -100 | 0
-    -1 | 0
-  }
-
   def "test Integer List argument"() {
     given:
       final var ilp = new IntListParam(['articles'], '<LIST> which articles to process?')
@@ -311,20 +189,6 @@ class BasicTests extends Specification {
       p.parse('--flt=hi') == []
     then:
       ArgParserException e = thrown()
-  }
-
-  private enum TestEnum { rocket, socket }
-  def "test enum params"() {
-    given:
-      final var ep = new EnumParam<>(TestEnum.class, "Give one of the enum values")
-      final var p = new Parser(ep)
-    expect:
-      p.parse(new String[] {n},0) == []
-      ep.value == v
-    where:
-      n          | v
-      '--rocket' | TestEnum.rocket
-      '--socket' | TestEnum.socket
   }
 
   def "test date params"() {

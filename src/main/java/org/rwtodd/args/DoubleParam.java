@@ -13,7 +13,7 @@ public class DoubleParam extends BasicOneArgParam<Double> {
   }
     
   public DoubleParam(Iterable<String> names, String help) {
-    super(names, Double.NaN, help);
+    this(names, Double.NaN, help);
   }
 
   @Override

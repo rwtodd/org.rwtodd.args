@@ -22,7 +22,7 @@ import java.util.Map;
  * @see BoundedParam
  * @author Richard Todd*
  */
-public class ClampedParam<T extends Comparable<T>> implements OneArgParam<T> {
+public class ClampedParam<T extends Comparable<? super T>> implements OneArgParam<T> {
     private final T min, max;
 
     private final OneArgParam<T> delegate;

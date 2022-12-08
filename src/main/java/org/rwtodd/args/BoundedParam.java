@@ -21,7 +21,7 @@ import java.util.Map;
  * @see ClampedParam
  * @author Richard Todd
  */
-public class BoundedParam<T extends Comparable<T>> implements OneArgParam<T> {
+public class BoundedParam<T extends Comparable<? super T>> implements OneArgParam<T> {
     /**
      * The type of bounds on the parameter.
      */

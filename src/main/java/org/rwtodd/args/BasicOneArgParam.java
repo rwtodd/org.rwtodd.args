@@ -4,20 +4,27 @@ import java.io.PrintStream;
 import java.util.Map;
 
 /**
- * A base class for a typical 1-argument parameter.  It is expected
+ * A base class for a typical, named, 1-argument parameter.  It is expected
  * that many custom parameters can be built as one-off anonymous classes
  * with this class as the base.
  *
  * @param <T> the type of the value maintained by this parameter.
  */
 public abstract class BasicOneArgParam<T> implements OneArgParam<T> {
+  /** the value of the argument to this parameter */
   protected T arg;
+
+  /** the names by which this parameter may be invoked on the command-line */
   protected final Iterable<String> paramNames;
+
+  /**
+   * The help text to be displayed for this parameter.
+   */
   protected final String helpText;
 
   /**
    * Construct a parameter.
-   * @param names a collection of names by which this parameter can be referenced on the command line.
+   * @param names a set of names by which this parameter can be referenced on the command line.
    * @param dflt the default, starting value of the parameter.
    * @param help the help string for this parameter.
    */
@@ -27,10 +34,6 @@ public abstract class BasicOneArgParam<T> implements OneArgParam<T> {
     helpText = help; 
   }
 
-  /**
-   * Fetch the value stored by this parameter.
-   * @return the value.
-   */
   @Override public T getValue() { return arg; }
 
   @Override

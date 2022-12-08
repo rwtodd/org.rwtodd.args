@@ -1,8 +1,11 @@
 package org.rwtodd.args;
 
 /**
- * An interface for a parameter that doesn't take arguments.  Typically
+ * An interface for a parameter that doesn't take arguments.  Typically,
  * these are simple boolean flags (see {@link FlagParam} for a typical flag).
+ *
+ * @param <T> The type of value maintained by the parameter.
+ * @author Richard Todd
  */
 public non-sealed interface NoArgParam<T> extends Param {
   /**
@@ -12,6 +15,8 @@ public non-sealed interface NoArgParam<T> extends Param {
    */
   void process(String param) throws ArgParserException;
 
-  /** gets the current value of the parameter */
+  /** Gets the current value of the parameter.
+   * @return the value.
+   */
   T getValue();
 }

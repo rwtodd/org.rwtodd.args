@@ -3,7 +3,7 @@ package org.rwtodd.args;
 /**
  * An exceptional situation from the command-line parser.
  *
- * @author rwtodd
+ * @author Richard Todd
  */
 public class ArgParserException extends Exception {
     /** Construct an ArgParserException.

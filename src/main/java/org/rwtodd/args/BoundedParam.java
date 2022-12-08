@@ -4,30 +4,69 @@ import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * <p>A parameter that restricts the values appearing on the command-line to a given range.
+ * Any values out of range will result in an exception.  It wraps
+ * an existing {@link OneArgParam}, and uses the wrapped param for names, defaults, and processing.</p>
+ * <p>Only the {@code BoundedParam} should be added to the {@link Parser}; the wrapped delegate
+ * should usually only be referenced by {@code BoundedParam}</p>
+ * <p>Example:</p><pre><code>
+ *  var ap = new BoundedParam(new IntParam(List.of("port"),6000,"port # (6000-8000)"),
+ *               6000,
+ *               8000);
+ *  var p = new Parser(ap);
+ * </code></pre>
+ * <p>...which can parse ports and throw an exception if they are out of the 6000-8000 range.</p>
+ * @param <T> the type of value maintained by the param.
+ * @see ClampedParam
+ * @author Richard Todd
+ */
 public class BoundedParam<T extends Comparable<T>> implements OneArgParam<T> {
-    public enum BoundType { Inclusive, Exclusive }
+    /**
+     * The type of bounds on the parameter.
+     */
+    public enum BoundType {
+        /**
+         * The bounds include both the minimum and maximum value. {@code [min,max]}
+         */
+        Inclusive,
+        /**
+         * The bounds include the minimum, but exclude the maximum value. {@code [min,max)}
+         */
+        Exclusive
+    }
+
     private final T min, max;
     private final BoundType boundtype;
 
     private final OneArgParam<T> delegate;
 
+    /**
+     * Construct the parameter.
+     *
+     * @param delegate  a {@link OneArgParam} that we will delegate to for names and help strings and parsing
+     * @param min  the minimum allowed value
+     * @param max the maximum allowed value
+     * @param bt the type of bounds represented by the min and max
+     */
     public BoundedParam(OneArgParam<T> delegate, T min, T max, BoundType bt) {
         this.delegate = delegate;
         this.min = min;
         this.max = max;
         this.boundtype = bt;
     }
+
+    /**
+     * Construct the parameter.  The bounds are set to {@code BoundType.Inclusive}.
+     *
+     * @param delegate  a {@link OneArgParam} that we will delegate to for names and help strings and parsing
+     * @param min  the minimum allowed value
+     * @param max the maximum allowed value
+     */
     public BoundedParam(OneArgParam<T> delegate, T min, T max) {
         this(delegate, min, max, BoundType.Inclusive);
     }
 
-    /**
-     * Process an parameter with its argument.
-     *
-     * @param param    the name of the parameter, as it was found in the command-line.
-     * @param argument the given argument to the parameter.
-     * @throws ArgParserException if there is a problem parsing the argument.
-     */
     @Override
     public void process(String param, String argument) throws ArgParserException {
         delegate.process(param,argument);
@@ -38,19 +77,11 @@ public class BoundedParam<T extends Comparable<T>> implements OneArgParam<T> {
             throw new ArgParserException(String.format("Parameter <%s> must be between %s and %s!", param, min.toString(), max.toString()));
     }
 
-    /**
-     * gets the current value of the parameter
-     */
     @Override
     public T getValue() {
         return delegate.getValue();
     }
 
-    /**
-     * Add the parameter's names to a {@code Map<String,Param>}.
-     *
-     * @param map the {@code Map} to which our names should be added.
-     */
     @Override
     public void addToMap(Map<String, Param> map) {
         final var tempMap = new HashMap<String,Param>();
@@ -60,11 +91,6 @@ public class BoundedParam<T extends Comparable<T>> implements OneArgParam<T> {
         }
     }
 
-    /**
-     * adds help for this parameter to the given stream.
-     *
-     * @param ps the stream to use
-     */
     @Override
     public void addHelp(PrintStream ps) {
         delegate.addHelp(ps);

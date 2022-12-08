@@ -3,7 +3,8 @@ package org.rwtodd.args;
 /**
  * An interface for parameters that take an argument from the command line.
  *
- * @author rwtodd
+ * @param <T> the type of value that is maintained by the parameter.
+ * @author Richard Todd
  */
 public non-sealed interface OneArgParam<T> extends Param {
   /**
@@ -14,6 +15,8 @@ public non-sealed interface OneArgParam<T> extends Param {
    */
   void process(String param, String argument) throws ArgParserException;
 
-  /** gets the current value of the parameter */
+  /** Gets the current value of the parameter.
+   * @return the value
+   */
   T getValue();
 }

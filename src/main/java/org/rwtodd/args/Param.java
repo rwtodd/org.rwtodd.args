@@ -4,12 +4,16 @@ import java.io.PrintStream;
 import java.util.Map;
 
 /**
- * Interface for command-line parameter specs.  The two subclasses
+ * <p>Interface for command-line parameter specs.  The two subclasses
  * are for parameters that are expected on the command-line.  One
  * can also define {@code Param} instances that merely group and
  * format other parameters as part of help text.
+ * </p>
+ * <p>This is a sealed interface that only permits {@link OneArgParam},
+ * {@link NoArgParam}, and {@link DecorativeParam}.
+ * </p>
  * 
- * @author rwtodd
+ * @author Richard Todd
  */
 public sealed interface Param permits OneArgParam, NoArgParam, DecorativeParam {
     /** Add the parameter's names to a {@code Map<String,Param>}.

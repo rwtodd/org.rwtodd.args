@@ -5,7 +5,9 @@ import java.util.Map;
 
 /**
  * This is a named group of Params for the purpose of organizing help text.
- * It is not a param itself, and doesn't add itself to the {@code Parser}'s map.
+ * It is not a param itself, and doesn't add itself to the {@link Parser}'s map.
+ *
+ * @author Richard Todd
  */
 public class ParamGroup implements DecorativeParam {
     private final String groupName;
@@ -21,11 +23,6 @@ public class ParamGroup implements DecorativeParam {
         subParams = params;
     }
 
-    /**
-     * Add the parameter's names to a {@code Map<String,Param>}.
-     *
-     * @param map the {@code Map} to which our names should be added.
-     */
     @Override
     public void addToMap(Map<String, Param> map) {
         for(final var p: subParams) {
@@ -33,11 +30,6 @@ public class ParamGroup implements DecorativeParam {
         }
     }
 
-    /**
-     * adds help for this parameter to the given stream.
-     *
-     * @param ps the stream to use
-     */
     @Override
     public void addHelp(PrintStream ps) {
         ps.print("## ");

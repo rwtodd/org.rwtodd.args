@@ -75,13 +75,13 @@ public class Parser {
     }
 
     /**
-     * parses the given args, and returns any elements that don't appear to be
+     * Parses the given args, and returns any elements that don't appear to be
      * params in an array.
      *
      * @param args the command-line arguments
      * @param skip how many entries in args to skip before processing
      * @return any non-param strings from the input
-     * @throws org.rwtodd.args.ArgParserException when a problem is
+     * @throws ArgParserException when a problem is
      *    encountered
      */
     public List<String> parse(String[] args, int skip) throws ArgParserException {
@@ -113,15 +113,15 @@ public class Parser {
     }
 
     /**
-     * parses the given args, and returns any elements that don't appear to be
+     * Parses the given args, and returns any elements that don't appear to be
      * params in an array.  It skips no arguments, since in java, there is no
      * first argument with a program name. To skip a different amount (for instance,
      * if your command-line had subcommands to parse prior to command-line args),
-     * call the overload of this method that has 2 arguments.
+     * call the {@link #parse(String[], int)} overload.
      *
      * @param args the command-line arguments
      * @return any non-param strings from the input
-     * @throws org.rwtodd.args.ArgParserException when a problem is
+     * @throws ArgParserException when a problem is
      *    encountered
      */
     public List<String> parse(String[] args) throws ArgParserException {
@@ -169,8 +169,9 @@ public class Parser {
     }
 
     /**
-     * Print help text for each parameter given to us by the user.  The parametrs
-     * are printed in the same order they were provided.
+     * Print help text for each parameter given to us by the user.  The parameters
+     * are printed in the same order they were provided when the {@code Parser} was
+     * constructed.
      *
      * @param ps the print stream to use for output.
      */

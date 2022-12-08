@@ -6,14 +6,35 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * <p>A parameter that builds a list of all instances which appear on the command-line. It wraps
+ * an existing {@link OneArgParam}, and uses the wrapped param for names and processing.</p>
+ * <p>Only the {@code AppendingParam} should be added to the {@link Parser}; the wrapped delegate
+ * should usually only be referenced by {@code AppendingParam}</p>
+ * <p>Example:</p><pre><code>
+ *  var ap = new AppendingParam(new IntParam(List.of("port","p"),"the ports to use"));
+ *  var p = new Parser(ap);
+ * </code></pre>
+ * <p>...which can parse repeated params {@code -p 12 --port=5 -p 108} into the list {@code [12,5,108]}</p>
+ * @param <T> the type of the parameter, which it builds into a list
+ *
+ * @author Richard Todd
+ */
 public class AppendingParam<T> implements OneArgParam<List<T>> {
+    /**
+     * a delegate parameter, which is used to get names and to process argument strings.
+     */
     protected OneArgParam<T> delegate;
+
+    /**
+     * the list this parameter maintains as it processes arguments.
+     */
     protected List<T> arg;
 
     /**
      * Construct a parameter.
      *
-     * @param delegate a OneArgParam that we will delegate to for names and help strings and parsing
+     * @param delegate a {@link OneArgParam} that we will delegate to for names and help strings and parsing
      * @param dflt  the default, starting value of the parameter (any provided params will be appended it this).
      */
     public AppendingParam(OneArgParam<T> delegate, List<T> dflt) {
@@ -24,7 +45,7 @@ public class AppendingParam<T> implements OneArgParam<List<T>> {
     /**
      * Construct a parameter that defaults to the empty list.
      *
-     * @param delegate a OneArgParam that we will delegate to for names and help strings and parsing
+     * @param delegate a {@link OneArgParam} that we will delegate to for names and help strings and parsing
      */
     public AppendingParam(OneArgParam<T> delegate) {
         this(delegate, new ArrayList<>());
@@ -36,11 +57,6 @@ public class AppendingParam<T> implements OneArgParam<List<T>> {
         arg.add(delegate.getValue());
     }
 
-    /**
-     * Add the parameter's names to a {@code Map<String,Param>}.
-     *
-     * @param map the {@code Map} to which our names should be added.
-     */
     @Override
     public void addToMap(Map<String, Param> map) {
         final var tempMap = new HashMap<String,Param>();
@@ -50,19 +66,11 @@ public class AppendingParam<T> implements OneArgParam<List<T>> {
         }
     }
 
-    /**
-     * adds help for this parameter to the given stream.
-     *
-     * @param ps the stream to use
-     */
     @Override
     public void addHelp(PrintStream ps) {
         delegate.addHelp(ps);
     }
 
-    /**
-     * gets the current value of the parameter
-     */
     @Override
     public List<T> getValue() {
         return arg;

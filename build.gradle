@@ -2,8 +2,6 @@
  * User Manual available at https://docs.gradle.org/6.6.1/userguide/java_library_plugin.html
  */
 plugins {
-    id 'groovy'
-
     // Apply the java-library plugin for API and implementation separation.
     id 'java-library'
 
@@ -24,16 +22,15 @@ repositories {
 }
 
 dependencies {
-    testImplementation 'org.apache.groovy:groovy:4.0.6'
-
-    // Use the awesome Spock testing and specification framework even with Java
-    testImplementation 'org.spockframework:spock-core:2.3-groovy-4.0'
-    testImplementation 'junit:junit:4.13.2'
+	testImplementation(platform('org.junit:junit-bom:5.9.1'))
+	testImplementation('org.junit.jupiter:junit-jupiter')
 }
 
 test {
-    // Use junit platform for unit tests
-    useJUnitPlatform()
+	useJUnitPlatform()
+	testLogging {
+		events "skipped", "failed"
+	}
 }
 
 java { 
